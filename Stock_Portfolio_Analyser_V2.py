@@ -181,8 +181,8 @@ while True:
         print("4. Search for stock")                    # Gathers data from API to display a stock and its data 
         print("5. Remove Stock from Portfolio") # Done
         print("6. Trending this week")
-        print("7. Portfolio Analysis & CSV Export")
-        print("8. Exit")
+        print("7. Portfolio Analysis & CSV Export") #Done
+        print("8. Exit") #Done
         print("="*40)
         try:
             choice = int(input("Choose menu option (1-8): "))
@@ -260,4 +260,5 @@ while True:
 
 
             
+
 
