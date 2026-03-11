@@ -1,4 +1,4 @@
-import os, json 
+import os, json, pandas as pd , yfinance as yf
 
 class Asset:      #Parent class which will be inherited via the stock class for the variables
     def __init__(self, name, buy_price, shares):
@@ -17,11 +17,11 @@ class Stock(Asset):
     def __str__(self):
         return f"{self.name} ({self.ticker}) - buy_price: {self.buy_price} shares: {self.shares}"
     
-
+    
 class Portfolio:
     def __init__(self, name):
         self.name = name    # Portfolios name
-        self.stocks = {} #Store the stocks the user will input within the CRUD menu
+        self.stocks = {} #Store the stocks the user will input within the CRUD menu 
 
     def save_portfolio(self, filename):
         data = []
@@ -81,7 +81,26 @@ class Portfolio:
             except:
                 pass                                       
             print("Starting with empty portfolio.")
-            return {}                                       
+            return {}  
+
+    def to_dict_list(self):
+        data = []
+        for stock in self.stocks.values():
+            data.append({
+                "ticker": stock.ticker,
+                "name": stock.name,
+                "buy_price": stock.buy_price,
+                "shares": stock.shares,
+                "total_value": stock.total_value()
+            })
+        return data       
+
+    def export_to_CSV(self, filename):   
+
+        data = self.to_dict_list()
+        df = pd.DataFrame(data) 
+        df.to_csv(filename, index=False)
+        print(f"Successfully exported Portfolio to {filename}")                    
         
     def add_stock(self, stock):
         self.stocks[stock.ticker] = stock
@@ -111,10 +130,47 @@ class Portfolio:
             print(f"{ticker} not found in your portfolio")
             print("="*40)
 
+    def current_stock_value(self, ticker): 
+        try:
+            stock_data = yf.Ticker(ticker)
+            history = stock_data.history(period ="1d")
+            price =  history["Close"].iloc[-1]
+            return price
+        except Exception as e:  
+            print(f"Error fetching price for {ticker}: {e}")  
+        return None
 
-portfolio = Portfolio("Tavian's Portfolio")
-portfolio.save_portfolio("portfolio.json")
+    def portfolio_analysis(self):
+        if not self.stocks:
+            print("You have no stocks within your portfolio")
+            return False
+        
+        print("/===Portfolio Analyser")
+        print("="*40)
+        total_PL = 0
+        for ticker, stock in self.stocks.items():
+            shares = stock.shares
+            buy_price = stock.buy_price
+            current_price = self.current_stock_value(ticker)
+            if current_price is None:
+                print(f"{ticker} Price is unavailable")
+                continue
+            PL = (current_price - buy_price) * shares
+            total_sign = "+" if total_PL > 0 else ""
+            total_PL += PL
+            if PL > 0:
+                sign = "+"
+            elif PL < 0:
+                sign = ""  
+            else:
+                sign = ""
+            print(f"{ticker}  | Shares: {shares}  | Avg Buy: £{buy_price}  | Current: £{current_price:.2f} | Total P&L: £{sign}{PL:.2f}")
+            
+     
+        print(f"Total Portfolio P&L: {total_sign} {total_PL:.2f}")
 
+portfolio = Portfolio("portfolio.json")
+portfolio.load_portfolio("portfolio.json")
 while True:
         print("\n" + "="*40)
         print("    Stock Portfolio Tracker ")
@@ -125,7 +181,7 @@ while True:
         print("4. Search for stock")                    # Gathers data from API to display a stock and its data 
         print("5. Remove Stock from Portfolio") # Done
         print("6. Trending this week")
-        print("7. Portfolio Analysis")
+        print("7. Portfolio Analysis & CSV Export")
         print("8. Exit")
         print("="*40)
         try:
@@ -142,11 +198,11 @@ while True:
                 print("=====================================================")
                 continue
             try:
-                buy_price = float(input("Please enter the buy price: "))  
+                buy_price = float(input("Please enter the buy price: "))  #append to position if it already exists
                 if buy_price <= 0:
                     print("Buy price must be greater than value 0")
                     continue
-                shares = float(input("Please enter the amount of shares purchased: "))   
+                shares = float(input("Please enter the amount of shares purchased: "))   #append to position if it already exists
                 print(f"{ticker} has successfully been added to your Portfolio!")
                 if shares < 0: 
                     print("Shares must be greater than 0")
@@ -180,11 +236,14 @@ while True:
         elif choice ==6:
             pass    
         elif choice ==7:
-            pass
+            portfolio.portfolio_analysis()
+            request = input("Are you sure you would like to export your portfolio?  (y/n): ").lower()
+            if request == "y":
+                print("Exporting your CSV file...")
+                portfolio.export_to_CSV("portfolio.CSV")
         elif choice ==8:
             choice_leave = input("Are you sure you would like to leave the current session? (y/n): ").lower()
             if choice_leave == "y":
-                #save the applicaiton upon exit
                 portfolio.save_portfolio("portfolio.json")
                 print("Gracefully exiting.. Thank you.")
                 break
@@ -201,3 +260,4 @@ while True:
 
 
             
+
