@@ -10,10 +10,10 @@
 ## Planned Features
 - ✅ JSON persistence (save/load portfolio)
 - ✅ Error handling for user input / data requests
-- [ ] CSV export
-- [ ] Live price API integration
-- [ ] Portfolio analysis and performance metrics
+- ✅ CSV export
+- ✅ Live price API integration
+- ✅ Portfolio analysis and performance metrics
 - [ ] Matplotlib/Plotly visualisations
 - [ ] Price history charts
-- [ ] Gain/loss calculations with visuals
+- ✅ Gain/loss calculations with visuals PENDING
 - [ ] Trending stocks this week
