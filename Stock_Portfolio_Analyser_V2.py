@@ -169,6 +169,20 @@ class Portfolio:
      
         print(f"Total Portfolio P&L: {total_sign} {total_PL:.2f}")
 
+    def search_stock(self, ticker):
+        try:
+            stock_data = yf.Ticker(ticker)
+            history = stock_data.history(period ="1d")
+            Current_price =  history["Close"].iloc[-1]
+            high = history["High"].iloc[-1]
+            low = history["Low"].iloc[-1]
+            volume = history["Volume"].iloc[-1]
+            print(f"{ticker}  | Current Price: {Current_price:.2f}  | 1D High: £{high:.2f}  | 1D low: £{low:.2f} | Volume: {volume}")
+            return Current_price, high, low, volume
+        except Exception as e:  
+            print(f"Error fetching price for {ticker}: {e}")  
+        return None
+
 portfolio = Portfolio("portfolio.json")
 portfolio.load_portfolio("portfolio.json")
 while True:
@@ -178,7 +192,7 @@ while True:
         print("1. Add Stock") # Done
         print("2. View Portfolio") # Done
         print("3. View Stock within Portfolio")  # Done
-        print("4. Search for stock")                    # Gathers data from API to display a stock and its data 
+        print("4. Search for stock")       # Done
         print("5. Remove Stock from Portfolio") # Done
         print("6. Trending this week")
         print("7. Portfolio Analysis & CSV Export") #Done
@@ -220,7 +234,8 @@ while True:
             ticker = input("Input stock ticker to view: ").upper()
             portfolio.view_single_stock(ticker)
         elif choice ==4:
-            pass
+            ticker = input("Please input the ticker you would like to find data on: ").upper()
+            portfolio.search_stock(ticker)
         elif choice ==5:
             ticker = input("Please input the stock you would like to remove from your portfolio: ").upper()
             if ticker in portfolio.stocks:
