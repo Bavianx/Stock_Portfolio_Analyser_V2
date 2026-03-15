@@ -144,8 +144,8 @@ class Portfolio:
         if not self.stocks:
             print("You have no stocks within your portfolio")
             return False
-        
-        print("/===Portfolio Analyser")
+            
+        print("/====== Current Portfolio Analyser ======/")
         print("="*40)
         total_PL = 0
         for ticker, stock in self.stocks.items():
@@ -182,6 +182,37 @@ class Portfolio:
         except Exception as e:  
             print(f"Error fetching price for {ticker}: {e}")  
         return None
+
+    def Pandas_analysis(self):
+            df = pd.read_csv("portfolio.csv")
+
+            while True:
+                print("=================== Pandas Portfolio Analysis ===================")
+                print("1.) Select Ticker and values columns ")
+                print("2.) Filter rows of Total Value of portfolio")
+                print("3.) Find the largest position within your portfolio")
+                print("4.) Fine the total value of your whole portfolio")
+                print("5.) Sort your portfolio from Highest to Lowest value stocks")
+                print("6.) Return back to application")
+                try:
+                    analyse = int(input("Choose menu option (1-6): "))
+                    print("============================================")
+                except ValueError:
+                    print("Please input a valid integer!")
+                    print("============================================")
+    
+                if analyse == 1: # select columns
+                    print(df[["ticker", "total_value"]])       
+                elif analyse == 2:   # filter rows
+                    print(df[df["total_value"] > 5000])  
+                elif analyse == 3: # find maximum
+                    print(df.loc[df["total_value"].idxmax()]) 
+                elif analyse == 4: # aggregate
+                    print(df["total_value"].sum())
+                elif analyse == 5: # sort
+                    print(df.sort_values("total_value", ascending=False))
+                elif analyse == 6:
+                    break 
 
 portfolio = Portfolio("portfolio.json")
 portfolio.load_portfolio("portfolio.json")
@@ -250,12 +281,13 @@ while True:
             
         elif choice ==6:
             pass    
-        elif choice ==7:
-            portfolio.portfolio_analysis()
-            request = input("Are you sure you would like to export your portfolio?  (y/n): ").lower()
+        elif choice ==7: 
+            request = input("Would you like to export your portfolio? or 'n' for the current analysis  (y/n): ").lower()
             if request == "y":
                 print("Exporting your CSV file...")
                 portfolio.export_to_CSV("portfolio.CSV")
+            portfolio.portfolio_analysis()
+            portfolio.Pandas_analysis()
         elif choice ==8:
             choice_leave = input("Are you sure you would like to leave the current session? (y/n): ").lower()
             if choice_leave == "y":
