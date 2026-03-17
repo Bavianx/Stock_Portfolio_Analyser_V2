@@ -184,35 +184,47 @@ class Portfolio:
         return None
 
     def Pandas_analysis(self):
-            df = pd.read_csv("portfolio.csv")
+        df = pd.read_csv("portfolio.csv")
+        
+        while True:
+            print("=================== Pandas Portfolio Analysis ===================")
+            print("1.) Portfolio Statistics ")
+            print("2.) Filter Portfolio Weight per stock")
+            print("3.) Identify Largest Position")
+            print("4.) Identify Smallest Position")
+            print("5.) Arrange Stocks, sort by value ")
+            print("6.) Return back to application")
+            print("============================================")
+            try:
+                analyse = int(input("Choose menu option (1-6): "))
+                print("============================================")
+            except ValueError:
+                print("Please input a valid integer!")
+                print("============================================")
+            
+            if analyse == 1: # Portfolio statistics
+                print(df.describe()) 
 
-            while True:
-                print("=================== Pandas Portfolio Analysis ===================")
-                print("1.) Select Ticker and values columns ")
-                print("2.) Filter rows of Total Value of portfolio")
-                print("3.) Find the largest position within your portfolio")
-                print("4.) Fine the total value of your whole portfolio")
-                print("5.) Sort your portfolio from Highest to Lowest value stocks")
-                print("6.) Return back to application")
-                try:
-                    analyse = int(input("Choose menu option (1-6): "))
-                    print("============================================")
-                except ValueError:
-                    print("Please input a valid integer!")
-                    print("============================================")
-    
-                if analyse == 1: # select columns
-                    print(df[["ticker", "total_value"]])       
-                elif analyse == 2:   # filter rows
-                    print(df[df["total_value"] > 5000])  
-                elif analyse == 3: # find maximum
-                    print(df.loc[df["total_value"].idxmax()]) 
-                elif analyse == 4: # aggregate
-                    print(df["total_value"].sum())
-                elif analyse == 5: # sort
-                    print(df.sort_values("total_value", ascending=False))
-                elif analyse == 6:
-                    break 
+            elif analyse == 2:   #Portfolio Weight per stock
+                df["portfolio_%"] = (df["total_value"] / df["total_value"].sum()) * 100
+                print("Your Weights per stocks are: ")
+                print(df[["ticker", "portfolio_%"]])
+
+            elif analyse == 3: # Largest Position
+                best = df.loc[df["total_value"].idxmax()]
+                print("Your biggest positioned stock is: ")
+                print(best[["ticker", "total_value"]])
+
+            elif analyse == 4: # Smallest Position
+                worst = df.loc[df["total_value"].idxmin()]
+                print("Your Smallest positioned stock is: ")
+                print(worst[["ticker", "total_value"]])
+
+            elif analyse == 5: # Stocks sorted by value 
+                print(df.sort_values("total_value", ascending=False))
+
+            elif analyse == 6:  # Return to menu 
+               break
 
 portfolio = Portfolio("portfolio.json")
 portfolio.load_portfolio("portfolio.json")
