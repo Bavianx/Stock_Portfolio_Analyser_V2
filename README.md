@@ -28,9 +28,9 @@ A Python command-line stock portfolio management system with live market data, p
 | `Portfolio` | Composition class — holds Stock objects in dictionary |
 
 ## Planned Features
-- [ ] Matplotlib/Plotly visualisations
-- [ ] Portfolio performance charts
-- [ ] Gain/loss visualisations
+- ✅ Matplotlib/Plotly visualisations
+- ✅ Portfolio performance charts
+- ✅ Gain/loss visualisations
 - [ ] Trending stocks feature
 - [ ] Professional screenshots and demos
 - ✅ JSON persistence (save/load portfolio)
