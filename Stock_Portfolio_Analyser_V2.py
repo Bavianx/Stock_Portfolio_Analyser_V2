@@ -225,6 +225,26 @@ class Portfolio:
 
             elif analyse == 6:  # Return to menu 
                break
+                
+    def show_charts(self):
+        if not self.stocks:
+            print("You currently have no stocks in your portfolio")
+            return 
+        df = pd.read_csv("portfolio.csv")
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+
+        # Pie chart  stock view
+        ax1.pie(df["total_value"], labels=df["ticker"], autopct="%1.1f%%")
+        ax1.set_title("Portfolio Breakdown")
+
+        # Bar chart stock view
+        ax2.bar(df["ticker"], df["total_value"], color="blue")
+        ax2.set_title("Portfolio Value by Stock")
+        ax2.set_xlabel("Ticker")
+        ax2.set_ylabel("Total Value (£)")
+
+        plt.tight_layout()
+        plt.show()
 
 portfolio = Portfolio("portfolio.json")
 portfolio.load_portfolio("portfolio.json")
@@ -301,6 +321,8 @@ while True:
             portfolio.portfolio_analysis()
             portfolio.Pandas_analysis()
         elif choice ==8:
+            portfolio.show_charts()
+        elif choice ==9:
             choice_leave = input("Are you sure you would like to leave the current session? (y/n): ").lower()
             if choice_leave == "y":
                 portfolio.save_portfolio("portfolio.json")
@@ -309,6 +331,7 @@ while True:
             else:
                 print("Cancelling exit...")
                 continue
+                
                 
 
 
