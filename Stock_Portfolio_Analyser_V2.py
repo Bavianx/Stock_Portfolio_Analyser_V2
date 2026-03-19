@@ -182,7 +182,34 @@ class Portfolio:
         except Exception as e:  
             print(f"Error fetching price for {ticker}: {e}")  
         return None
+        
+    def trending_stock(self):
+        watchlist = ["PLTR","AAPL", "TSLA", "NVDA", "MSFT", "AMZN", "META", "GOOGL"]
+        results = []
+        for ticker in watchlist:
+            try:
+                stock = yf.Ticker(ticker)
+                history = stock.history(period="5d")
 
+                if history.empty:
+                    print(f"No data for {ticker}")
+                    continue
+
+                weekly_price = history["Close"].iloc[0]
+                current = history["Close"].iloc[-1]       
+                change = ((current - weekly_price) / weekly_price) * 100
+                results.append((ticker, current, change))
+            except Exception as e:  
+                print(f"Skipping {ticker}: {e}")
+                continue
+
+        results.sort(key=lambda x: x[2], reverse=True) 
+        print("\n Trending Stocks This Week:")
+        print("================================")
+        for ticker, price, change in results[:5]:  
+            sign = "+" if change > 0 else ""
+            print(f"{ticker} | £{price:.2f} | {sign}{change:.2f}%")
+            
     def Pandas_analysis(self):
         df = pd.read_csv("portfolio.csv")
         
@@ -257,7 +284,7 @@ while True:
         print("3. View Stock within Portfolio")  # Done
         print("4. Search for stock")       # Done
         print("5. Remove Stock from Portfolio") # Done
-        print("6. Trending this week")
+        print("6. Trending this week") #Done
         print("7. Portfolio Analysis & CSV Export") #Done
         print("8. Exit") #Done
         print("="*40)
@@ -312,7 +339,7 @@ while True:
                     print("Cancelled...")
             
         elif choice ==6:
-            pass    
+            portfolio.trending_stock()
         elif choice ==7: 
             request = input("Would you like to export your portfolio? or 'n' for the current analysis  (y/n): ").lower()
             if request == "y":
