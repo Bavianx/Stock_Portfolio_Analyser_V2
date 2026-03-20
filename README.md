@@ -10,6 +10,7 @@ A Python command-line stock portfolio management system with live market data, p
 - **Remove Stock:** Remove holdings with confirmation prompt
 - **Portfolio Analysis:** Live P&L calculations with real-time prices
 - **Pandas Analysis:** Data analysis submenu with filtering and sorting
+- **Graphical display of Stock Portfolio** Graphical view of portfolio for users
 - **CSV Export:** Export portfolio data to CSV via Pandas
 - **JSON Persistence:** Auto-save on every change with backup system
 - **Corruption Handling:** Graceful recovery from corrupted save files
@@ -31,7 +32,7 @@ A Python command-line stock portfolio management system with live market data, p
 - ✅ Matplotlib/Plotly visualisations
 - ✅ Portfolio performance charts
 - ✅ Gain/loss visualisations
-- [ ] Trending stocks feature
+- ✅ Trending stocks feature
 - [ ] Professional screenshots and demos
 - ✅ JSON persistence (save/load portfolio)
 - ✅ Error handling for user input / data requests
