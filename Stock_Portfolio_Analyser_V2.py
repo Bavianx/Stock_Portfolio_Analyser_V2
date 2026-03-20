@@ -334,7 +334,6 @@ while True:
                     del portfolio.stocks[ticker]
                     portfolio.save_portfolio("portfolio.json")
                     print(f"Successfully removed {ticker} from the Inventory System!")
-                    
                 else:
                     print("Cancelled...")
             
