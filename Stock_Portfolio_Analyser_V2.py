@@ -118,7 +118,7 @@ class Portfolio:
 
         print("Current Stocks held:")
         for ticker, stock in self.stocks.items():
-            print(f"Ticker: {ticker} | Shares: {stock.shares} | Buy Price: {stock.buy_price} | Total Value: {stock.total_value()}") # add total value to this once we import the api to find the current value buy_price * shares = total amount spent
+            print(f"Ticker: {ticker} | Shares: {stock.shares} | Buy Price: {stock.buy_price} | Total Value: {stock.total_value()}")
         print(f"Your total portfolio Value is {self.total_value()}")
         print("="*40)
         
@@ -134,7 +134,7 @@ class Portfolio:
         try:
             stock_data = yf.Ticker(ticker)
             history = stock_data.history(period ="1d")
-            price =  history["Close"].iloc[-1]
+            price =  history["Close"].iloc[-1]    
             return price
         except Exception as e:  
             print(f"Error fetching price for {ticker}: {e}")  
@@ -211,7 +211,7 @@ class Portfolio:
             print(f"{ticker} | £{price:.2f} | {sign}{change:.2f}%")
             
     def Pandas_analysis(self):
-        df = pd.read_csv("portfolio.csv")
+        df = pd.read_csv("portfolio.csv")        #Creates data frame via the pandas csv file created upon save and export of application.
         
         while True:
             print("=================== Pandas Portfolio Analysis ===================")
@@ -257,10 +257,10 @@ class Portfolio:
         if not self.stocks:
             print("You currently have no stocks in your portfolio")
             return 
-        df = pd.read_csv("portfolio.csv")
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+        df = pd.read_csv("portfolio.csv")    
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))            # Chart sizing 
 
-        # Pie chart  stock view
+        # Pie chart stock view
         ax1.pie(df["total_value"], labels=df["ticker"], autopct="%1.1f%%")
         ax1.set_title("Portfolio Breakdown")
 
@@ -273,7 +273,7 @@ class Portfolio:
         plt.tight_layout()
         plt.show()
 
-portfolio = Portfolio("portfolio.json")
+portfolio = Portfolio("portfolio.json")        
 portfolio.load_portfolio("portfolio.json")
 while True:
         print("\n" + "="*40)
@@ -315,8 +315,8 @@ while True:
                 print("Please enter a valid number!")
                 print("=====================================================")
                 continue
-            new_stock = Stock(ticker, buy_price, shares, ticker)
-            portfolio.add_stock(new_stock)
+            new_stock = Stock(ticker, buy_price, shares, ticker)    #Creates new stock object as new_stock which holds the object data
+            portfolio.add_stock(new_stock)                                    
             portfolio.save_portfolio("portfolio.json")
         elif choice == 2:
             portfolio.view_all_stocks()
