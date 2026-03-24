@@ -1,4 +1,4 @@
-import os, json, pandas as pd , yfinance as yf
+import os, json, pandas as pd, yfinance as yf, matplotlib.pyplot as plt
 
 class Asset:      #Parent class which will be inherited via the stock class for the variables
     def __init__(self, name, buy_price, shares):
@@ -24,7 +24,7 @@ class Portfolio:
         self.stocks = {} #Store the stocks the user will input within the CRUD menu 
 
     def save_portfolio(self, filename):
-        data = []
+        data = []                                       #Grabs the dictionary of objects and converts it to a list of dictionaries to stores it  (plain dictionary (JSON STORAGE))
 
         for stock in self.stocks.values():
             data.append({
@@ -55,14 +55,14 @@ class Portfolio:
             with open(filename, 'r') as f:
                 data = json.load(f)
 
-            for stock_data in data:
+            for stock_data in data:             #Unpacks the Plain list of dictionaries and turns it back to a dictionary of objects to be used
                 stock = Stock(
                     stock_data["name"],
                     stock_data["buy_price"],
                     stock_data["shares"],
                     stock_data["ticker"]
                 )
-                self.stocks[stock.ticker] = stock
+                self.stocks[stock.ticker] = stock           #<- recycles the data from the list of dictionaries to dictionary of objects
 
             with open(filename + ".backup", 'w') as f:
                 json.dump(data, f, indent=4)
@@ -85,7 +85,7 @@ class Portfolio:
 
     def to_dict_list(self):
         data = []
-        for stock in self.stocks.values():
+        for stock in self.stocks.values():          #to gather the data of the stock we must reach into the object version of the stock to get the values stored within stocks
             data.append({
                 "ticker": stock.ticker,
                 "name": stock.name,
@@ -103,7 +103,7 @@ class Portfolio:
         print(f"Successfully exported Portfolio to {filename}")                    
         
     def add_stock(self, stock):
-        self.stocks[stock.ticker] = stock
+        self.stocks[stock.ticker] = stock                   # uses the stocks dictionary 
 
     def total_value(self):
         total = 0
@@ -118,7 +118,7 @@ class Portfolio:
 
         print("Current Stocks held:")
         for ticker, stock in self.stocks.items():
-            print(f"Ticker: {ticker} | Shares: {stock.shares} | Buy Price: {stock.buy_price} | Total Value: {stock.total_value()}")
+            print(f"Ticker: {ticker} | Shares: {stock.shares} | Buy Price: {stock.buy_price} | Total Value: {stock.total_value()}") # add total value to this once we import the api to find the current value buy_price * shares = total amount spent
         print(f"Your total portfolio Value is {self.total_value()}")
         print("="*40)
         
@@ -134,7 +134,7 @@ class Portfolio:
         try:
             stock_data = yf.Ticker(ticker)
             history = stock_data.history(period ="1d")
-            price =  history["Close"].iloc[-1]    
+            price = history["Close"].iloc[-1]
             return price
         except Exception as e:  
             print(f"Error fetching price for {ticker}: {e}")  
@@ -144,9 +144,8 @@ class Portfolio:
         if not self.stocks:
             print("You have no stocks within your portfolio")
             return False
-            
-        print("/====== Current Portfolio Analyser ======/")
-        print("="*40)
+        
+        print("/======================== Current Portfolio Analyser ========================/")
         total_PL = 0
         for ticker, stock in self.stocks.items():
             shares = stock.shares
@@ -182,7 +181,7 @@ class Portfolio:
         except Exception as e:  
             print(f"Error fetching price for {ticker}: {e}")  
         return None
-        
+    
     def trending_stock(self):
         watchlist = ["PLTR","AAPL", "TSLA", "NVDA", "MSFT", "AMZN", "META", "GOOGL"]
         results = []
@@ -209,9 +208,9 @@ class Portfolio:
         for ticker, price, change in results[:5]:  
             sign = "+" if change > 0 else ""
             print(f"{ticker} | £{price:.2f} | {sign}{change:.2f}%")
-            
+    
     def Pandas_analysis(self):
-        df = pd.read_csv("portfolio.csv")        #Creates data frame via the pandas csv file created upon save and export of application.
+        df = pd.read_csv("portfolio.csv")
         
         while True:
             print("=================== Pandas Portfolio Analysis ===================")
@@ -229,6 +228,7 @@ class Portfolio:
                 print("Please input a valid integer!")
                 print("============================================")
             
+
             if analyse == 1: # Portfolio statistics
                 print(df.describe()) 
 
@@ -252,15 +252,15 @@ class Portfolio:
 
             elif analyse == 6:  # Return to menu 
                break
-                
+
     def show_charts(self):
         if not self.stocks:
             print("You currently have no stocks in your portfolio")
             return 
-        df = pd.read_csv("portfolio.csv")    
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))            # Chart sizing 
+        df = pd.read_csv("portfolio.csv")
+        fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(18, 5))
 
-        # Pie chart stock view
+        # Pie chart  stock view
         ax1.pie(df["total_value"], labels=df["ticker"], autopct="%1.1f%%")
         ax1.set_title("Portfolio Breakdown")
 
@@ -270,10 +270,30 @@ class Portfolio:
         ax2.set_xlabel("Ticker")
         ax2.set_ylabel("Total Value (£)")
 
+        #P&L stock view
+        tickers = []
+        pl_values = []
+
+        for ticker, stock in self.stocks.items():
+            current_price = self.current_stock_value(ticker)
+            if current_price:
+                pl = (current_price - stock.buy_price) * stock.shares
+                tickers.append(ticker)
+                pl_values.append(pl)
+
+        # Colors based on P&L
+        colors = ["green" if pl > 0 else "red" for pl in pl_values]
+        ax3.bar(tickers, pl_values, color=colors)
+        ax3.set_title("Stock P&L")
+        ax3.set_xlabel("Ticker")
+        ax3.set_ylabel("P&L (£)")
+
+
         plt.tight_layout()
         plt.show()
 
-portfolio = Portfolio("portfolio.json")        
+
+portfolio = Portfolio("portfolio.json")
 portfolio.load_portfolio("portfolio.json")
 while True:
         print("\n" + "="*40)
@@ -282,14 +302,15 @@ while True:
         print("1. Add Stock") # Done
         print("2. View Portfolio") # Done
         print("3. View Stock within Portfolio")  # Done
-        print("4. Search for stock")       # Done
+        print("4. Search for stock")             # Done
         print("5. Remove Stock from Portfolio") # Done
-        print("6. Trending this week") #Done
-        print("7. Portfolio Analysis & CSV Export") #Done
-        print("8. Exit") #Done
+        print("6. Trending this week")
+        print("7. Portfolio Analysis & CSV Export") # Done
+        print("8. Graphical display of Stock Portfolio") # Done
+        print("9. Exit") # Done
         print("="*40)
         try:
-            choice = int(input("Choose menu option (1-8): "))
+            choice = int(input("Choose menu option (1-9): "))
             print("============================================")
         except ValueError:
             print("Please input a valid menu integer!")
@@ -299,7 +320,7 @@ while True:
             ticker = input("Please input the stocks Ticker symbol: ").upper()
             if not ticker.strip():
                 print("This field cannot be left empty!")
-                print("=====================================================")
+                print("============================================")
                 continue
             try:
                 buy_price = float(input("Please enter the buy price: "))  #append to position if it already exists
@@ -313,10 +334,10 @@ while True:
                     continue
             except ValueError:
                 print("Please enter a valid number!")
-                print("=====================================================")
+                print("============================================")
                 continue
-            new_stock = Stock(ticker, buy_price, shares, ticker)    #Creates new stock object as new_stock which holds the object data
-            portfolio.add_stock(new_stock)                                    
+            new_stock = Stock(ticker, buy_price, shares, ticker)
+            portfolio.add_stock(new_stock)
             portfolio.save_portfolio("portfolio.json")
         elif choice == 2:
             portfolio.view_all_stocks()
@@ -333,10 +354,9 @@ while True:
                 if confirm == "y":
                     del portfolio.stocks[ticker]
                     portfolio.save_portfolio("portfolio.json")
-                    print(f"Successfully removed {ticker} from the Inventory System!")
+                    print(f"Successfully removed {ticker} from the portfolio System!")
                 else:
                     print("Cancelled...")
-            
         elif choice ==6:
             portfolio.trending_stock()
         elif choice ==7: 
@@ -348,6 +368,9 @@ while True:
             portfolio.Pandas_analysis()
         elif choice ==8:
             portfolio.show_charts()
+            pass
+
+
         elif choice ==9:
             choice_leave = input("Are you sure you would like to leave the current session? (y/n): ").lower()
             if choice_leave == "y":
@@ -357,6 +380,7 @@ while True:
             else:
                 print("Cancelling exit...")
                 continue
+                
                 
                 
 
