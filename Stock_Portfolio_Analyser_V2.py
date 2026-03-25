@@ -183,7 +183,7 @@ class Portfolio:
         return None
     
     def trending_stock(self):
-        watchlist = ["PLTR","AAPL", "TSLA", "NVDA", "MSFT", "AMZN", "META", "GOOGL"]
+        watchlist = ["PLTR", "AAPL", "TSLA", "NVDA", "MSFT", "AMZN", "META", "GOOGL"]
         results = []
         for ticker in watchlist:
             try:
@@ -368,9 +368,6 @@ while True:
             portfolio.Pandas_analysis()
         elif choice ==8:
             portfolio.show_charts()
-            pass
-
-
         elif choice ==9:
             choice_leave = input("Are you sure you would like to leave the current session? (y/n): ").lower()
             if choice_leave == "y":
